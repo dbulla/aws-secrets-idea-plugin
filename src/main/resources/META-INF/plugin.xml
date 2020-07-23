@@ -1,0 +1,59 @@
+<idea-plugin>
+    <name>AWS Secrets Management</name>
+    <id>>AWS Secrets Management</id>
+    <vendor email="dbullard@nurflugel.com" url="https://github.com/dbulla/aws-secrets-idea-plugin">
+        Nurflugel.com
+    </vendor>
+    <depends>com.intellij.modules.lang</depends>
+
+<!--    <extensions defaultExtensionNs="com.intellij">-->
+<!--        <projectConfigurable displayName="AWS Secrets Manager Settings" instance="net.nike.ecomm.kmssecretsplugin.ui.ProjectSettingsPage"/>-->
+<!--    </extensions>-->
+    <idea-version since-build="162"/>
+
+    <actions>
+        <group>
+            <action id="awssecretsplugin.put"
+                    class="com.nurflugel.ideaplugins.aws.secretsmanager.PutSecretsAction"
+                    text="Put a Secret File to AWS"
+                    description="Put a secret file to AWS">
+<!--                <keyboard-shortcut keymap="$default" first-keystroke="alt shift e"/>-->
+            </action>
+            <action id="awssecretsplugin.get"
+                    class="com.nurflugel.ideaplugins.aws.secretsmanager.GetSecretsAction"
+                    text="Get a Secret File from AWS"
+                    description="Get a secret file from AWS">
+                <!--                <keyboard-shortcut keymap="$default" first-keystroke="alt shift e"/>-->
+            </action>
+            <action id="awssecretsplugin.fetch"
+                    class="com.nurflugel.ideaplugins.aws.secretsmanager.FetchSecretsAction"
+                    text="Fetch Secrets from AWS by wildcard"
+                    description="Get a secret file from AWS">
+                <!--                <keyboard-shortcut keymap="$default" first-keystroke="alt shift e"/>-->
+            </action>
+            <add-to-group group-id="FileMenu" anchor="last"/>
+        </group>
+    </actions>
+
+
+    <description><![CDATA[
+This is a plugin for Intellij IDEA which helps working with AWS secrets. <p>
+
+deal with create, get, and put
+
+Properties
+JSON
+BLOB
+
+    ]]></description>
+
+
+    <change-notes><![CDATA[
+<ul>
+<li>0.0.1 Initial release</li>
+<li>0.0.3 Moved to the file menu</li>
+ </ul>
+
+   ]]></change-notes>
+
+</idea-plugin>
