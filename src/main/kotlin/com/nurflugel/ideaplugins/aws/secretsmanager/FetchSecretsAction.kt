@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.nurflugel.ideaplugins.aws.secretsmanager.GetSecretsAction.Companion.fetchAndWriteSecret
 import com.nurflugel.ideaplugins.aws.secretsmanager.SecretType.*
 import java.io.File
+import javax.swing.JOptionPane
 
 class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
 
@@ -20,12 +21,14 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
     override fun actionPerformed(e: AnActionEvent) {
         val awsRegion = System.getenv("AWS_REGION") ?: "us-west-2"
         val files: Array<VirtualFile>? = e.dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)
-        if(files !=null) {
-            val virtualFile = files.first()
-            if (virtualFile != null) {
+        if (files != null) {
+            if (files.isNotEmpty()) {
+                val virtualFile = files.first()
                 val canonicalPath = virtualFile.canonicalPath
                 //todo get a popup to enter text
-                val secrets = getSecretIdsForWildcards("cc-order", awsRegion)
+                val searchPattern: String = JOptionPane.showInputDialog(null, "What's the search string?");
+                val secrets = getSecretIdsForWildcards(searchPattern, awsRegion)
+//                val secrets = getSecretIdsForWildcards("cc-order", awsRegion)
                 for (secret in secrets) {
                     val file = File(canonicalPath)
                     val parentDir = if (file.isDirectory) {
@@ -35,14 +38,16 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
                     }
                     val filepath = secret + "." + PROPERTIES.extension
                     val secretFile = File(parentDir, filepath)
+                    // todo put above into enum so JSON is saved as JSON - need to parse on fetch
                     fetchAndWriteSecret(secret, awsRegion, PROPERTIES, secretFile.absolutePath)
                 }
-
+                val fileSystem = virtualFile.fileSystem
+                fileSystem.refresh(false)
+            } else {
+                JOptionPane.showMessageDialog(null, "No file or dir was selected, where do we put the secrets?")
             }
         }
-
     }
-
 
     /**
      * For the given secret ID, get the properties
@@ -53,14 +58,17 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
             .build()
         // $ aws secretsmanager list-secrets --filters '[{"Key":"description", "Values":["conducts"]}]' --query "SecretList[*].{SecretName:Name,Description:Description}"
 
-        val filter: Filter = Filter().withKey("name")
+        val filter: Filter = Filter()
+            .withKey("name")
             .withValues(text)
         val listSecretsResult: ListSecretsResult = try {
             val listSecretsRequest: ListSecretsRequest = ListSecretsRequest()
                 .withFilters(filter)
-            client.listSecrets(listSecretsRequest)
+            client.listSecrets(listSecretsRequest)// todo deal with tokens and while until done...
         } catch (e: Exception) {
+            JOptionPane.showMessageDialog(null, "Error fetching secrets: " + e.message)
             log.error("Error!", e)
+            println("Error!" + e.message)
             return mutableListOf()
         }
         listSecretsResult.secretList.forEach { println("secret name is  = ${it}") }
@@ -71,8 +79,6 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
             println("secretName = ${secretName}")
         }
         return secretNames
-
-
     }
 
 

@@ -31,6 +31,8 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
                 // format the secret as per type - blob, properties or json
                 // save to disk, with file name based on file type
             }
+            val fileSystem = files[0].fileSystem
+            fileSystem.refresh(false)
         }
     }
 
