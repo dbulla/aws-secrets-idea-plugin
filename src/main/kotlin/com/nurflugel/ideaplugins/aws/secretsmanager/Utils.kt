@@ -1,8 +1,5 @@
 package com.nurflugel.ideaplugins.aws.secretsmanager
 
-import org.apache.commons.lang3.StringUtils
-import java.util.*
-import kotlin.collections.HashMap
 
 object Utils {
 
@@ -14,14 +11,14 @@ object Utils {
         secretName: String,
         secrets: String
     ): Map<String, String> {
-        val props = mutableMapOf<String,String>()
+        val props = mutableMapOf<String, String>()
         val lines = secrets.split("\n").toTypedArray()
         lines
             .map { obj: String -> obj.trim { it <= ' ' } }
             .filter { line -> line.isNotBlank() } // ignore empty lines
             .filter { line -> !line.startsWith("#") } // remove comments
             .sorted() // in order of the keys
-            .forEach{ line ->
+            .forEach { line ->
                 val keyValue = line.split("=") // split on the  "=" - all keys MUST have a value
                 if (keyValue.size == 2) {
                     addKeyToMap(props, keyValue)

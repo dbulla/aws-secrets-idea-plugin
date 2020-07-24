@@ -2,7 +2,7 @@
     <name>AWS Secrets Management</name>
     <id>>AWS Secrets Management</id>
     <vendor email="dbullard@nurflugel.com" url="https://github.com/dbulla/aws-secrets-idea-plugin">
-        Nurflugel.com
+        dbullard@nurflugel.com
     </vendor>
     <depends>com.intellij.modules.lang</depends>
 
@@ -28,7 +28,7 @@
             <action id="awssecretsplugin.fetch"
                     class="com.nurflugel.ideaplugins.aws.secretsmanager.FetchSecretsAction"
                     text="Fetch Secrets from AWS by wildcard"
-                    description="Get a secret file from AWS">
+                    description="Get all matching secret files from AWS">
                 <!--                <keyboard-shortcut keymap="$default" first-keystroke="alt shift e"/>-->
             </action>
             <add-to-group group-id="FileMenu" anchor="last"/>
