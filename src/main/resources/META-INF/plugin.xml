@@ -14,17 +14,17 @@
     <actions>
         <group id="org.intellij.sdk.action.GroupedActions" text="Manage AWS Secrets Files" popup="true" >
             <action id="awssecretsplugin.put"
-                    class="com.nurflugel.ideaplugins.aws.secretsmanager.PutSecretsAction"
+                    class="com.nurflugel.ideaplugins.aws.secretsmanager.actions.PutSecretsAction"
                     text="Put a Secret File to AWS"
                     description="Put a secret file to AWS">
             </action>
             <action id="awssecretsplugin.get"
-                    class="com.nurflugel.ideaplugins.aws.secretsmanager.GetSecretsAction"
+                    class="com.nurflugel.ideaplugins.aws.secretsmanager.actions.GetSecretsAction"
                     text="Get a Secret File from AWS"
                     description="Get a secret file from AWS">
             </action>
             <action id="awssecretsplugin.fetch"
-                    class="com.nurflugel.ideaplugins.aws.secretsmanager.FetchSecretsAction"
+                    class="com.nurflugel.ideaplugins.aws.secretsmanager.actions.FetchSecretsAction"
                     text="Fetch Secrets from AWS by Wildcard"
                     description="Get all matching secret files from AWS">
             </action>

@@ -7,10 +7,14 @@ data class Event(
         val isSuccess: Boolean,
         /** Whatever message we wan to show */
         val text: String
-                ) {
+) {
 
     override fun toString(): String {
-        return "     Success? $isSuccess: $text"
+        val dibble = if (isSuccess) {
+            "Success: "
+        } else {
+            "Failed: "
+        }
+        return "     $dibble$text"
     }
-
 }

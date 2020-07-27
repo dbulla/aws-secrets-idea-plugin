@@ -1,4 +1,4 @@
-package com.nurflugel.ideaplugins.aws.secretsmanager
+package com.nurflugel.ideaplugins.aws.secretsmanager.actions
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
@@ -11,8 +11,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
+import com.nurflugel.ideaplugins.aws.secretsmanager.Event
+import com.nurflugel.ideaplugins.aws.secretsmanager.SecretType
 import org.apache.commons.io.FileUtils
 import java.io.File
+import javax.swing.JOptionPane
 
 class PutSecretsAction : AnAction("Save AWS secrets files") {
 
@@ -50,6 +53,7 @@ class PutSecretsAction : AnAction("Save AWS secrets files") {
                 // format the secret as per type - blob, properties or json
                 // save to disk, with file name based on file type
             }
+            showResults(events)
         }
     }
 
@@ -84,16 +88,25 @@ class PutSecretsAction : AnAction("Save AWS secrets files") {
             if (e is ResourceNotFoundException) {
                 log.info("Trying to create the secret")
                 val createSecretRequest: CreateSecretRequest = CreateSecretRequest()
-                    .withName(secretName)
-                    .withSecretString(secretAsString)
+                        .withName(secretName)
+                        .withSecretString(secretAsString)
                 try {
                     val secretResult = client.createSecret(createSecretRequest)
                     events.add(Event(true, "Created new secret $secretName"))
                 } catch (e: Exception) {
                     log.error("Got an error creating the secret!", e)
-                    events.add(Event(false, "Failed to Put/Create secret $secretName"))
+                    events.add(Event(false, "Failed to Put/Create secret $secretName - ${e.message}"))
                 }
             }
+        }
+    }
+
+    companion object {
+        fun showResults(events: MutableList<Event>) {
+            val comparator = compareBy<Event> { it.isSuccess }.thenBy { it.text }
+            val sortedEvents = events.sortedWith(comparator)
+            val eventsAsString = sortedEvents.joinToString(separator = "\n")
+            JOptionPane.showMessageDialog(null, "Results: \n" + eventsAsString)
         }
     }
 }

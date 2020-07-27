@@ -1,4 +1,4 @@
-package com.nurflugel.ideaplugins.aws.secretsmanager
+package com.nurflugel.ideaplugins.aws.secretsmanager.actions
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
@@ -10,7 +10,11 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileSystem
+import com.nurflugel.ideaplugins.aws.secretsmanager.Event
+import com.nurflugel.ideaplugins.aws.secretsmanager.JsonValidator
+import com.nurflugel.ideaplugins.aws.secretsmanager.PropertiesValidator
 import com.nurflugel.ideaplugins.aws.secretsmanager.SecretType.*
+import com.nurflugel.ideaplugins.aws.secretsmanager.actions.PutSecretsAction.Companion.showResults
 import org.apache.commons.io.FileUtils
 import java.io.File
 import javax.swing.JOptionPane
@@ -32,8 +36,8 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
                 // save to disk, with file name based on file type
             }
             val fileSystem = files[0].fileSystem
-            fileSystem.refresh(false)
-            JOptionPane.showMessageDialog(null, "Results: \n" + events.joinToString(separator = "\n") { it.toString() })
+            fileSystem.refresh(true)
+            showResults(events)
         } else {
             JOptionPane.showMessageDialog(null, "No files selected")
         }
@@ -55,10 +59,10 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
             return fetchAndWriteSecret(
                     file.nameWithoutExtension,
                     awsRegion,
-                    file.parent?.canonicalPath !!,
+                    file.parent?.canonicalPath!!,
                     file.fileSystem,
                     events
-                                      )
+            )
         }
 
         fun fetchAndWriteSecret(
@@ -75,10 +79,10 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
 
             //todo keypair type
             val secretType = when {
-                isJson                 -> JSON
-                isProperties           -> PROPERTIES
+                isJson -> JSON
+                isProperties -> PROPERTIES
                 secretAsString == null -> MISSING
-                else                   -> BLOB
+                else -> BLOB
             }
             if (secretType != MISSING) {
                 val formattedText = secretType.format(secretAsString)
@@ -107,7 +111,7 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
                 events.add(Event(true, "Fetched secret for $secretId"))
                 getSecretValueResult.secretString
             } catch (e: Exception) {
-                events.add(Event(false, "Couldn't fetch secret for $secretId"))
+                events.add(Event(false, "Couldn't fetch secret for $secretId - ${e.message}"))
                 null
             }
             return secretString

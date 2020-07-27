@@ -1,4 +1,4 @@
-package com.nurflugel.ideaplugins.aws.secretsmanager
+package com.nurflugel.ideaplugins.aws.secretsmanager.actions
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
@@ -10,7 +10,9 @@ import com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE_ARRAY
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileSystem
-import com.nurflugel.ideaplugins.aws.secretsmanager.GetSecretsAction.Companion.fetchAndWriteSecret
+import com.nurflugel.ideaplugins.aws.secretsmanager.Event
+import com.nurflugel.ideaplugins.aws.secretsmanager.actions.GetSecretsAction.Companion.fetchAndWriteSecret
+import com.nurflugel.ideaplugins.aws.secretsmanager.actions.PutSecretsAction.Companion.showResults
 import java.io.File
 import javax.swing.JOptionPane
 
@@ -33,7 +35,7 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
                 val searchPattern: String = JOptionPane.showInputDialog(null, "What's the search string?");
                 val secrets = getSecretIdsForWildcards(searchPattern, awsRegion)
                 secrets.forEach { fetchAndWriteSecret(it, awsRegion, file.absolutePath, fileSystem, events) }
-                JOptionPane.showMessageDialog(null, "Results: \n" + events.joinToString { "\n" })
+                showResults(events)
 
             } else {
                 JOptionPane.showMessageDialog(null, "No file or dir was selected, where do we put the secrets?")
