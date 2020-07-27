@@ -4,16 +4,15 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonToken.*
 import com.google.gson.stream.MalformedJsonException
-import java.io.IOException
 import java.io.Reader
 import java.io.StringReader
 
-
+/** Class to figure out if this is valid JSON or not */
 class JsonValidator {
 
     companion object {
 
-        @Throws(IOException::class)
+        /** Is this JSON? */
         private fun isJson(jsonReader: JsonReader): Boolean {
             return try {
                 var token: JsonToken?
@@ -35,15 +34,12 @@ class JsonValidator {
             }
         }
 
-        @Throws(IOException::class)
         private fun isJson(reader: Reader): Boolean {
             return isJson(JsonReader(reader))
         }
 
-
-        @Throws(IOException::class)
         fun isJson(json: String?): Boolean {
-            return isJson(StringReader(json))
+            return json != null && isJson(StringReader(json))
         }
     }
 }

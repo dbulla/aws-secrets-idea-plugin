@@ -8,11 +8,11 @@ import com.amazonaws.services.secretsmanager.model.PutSecretValueResult
 import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
-import java.io.File
-import com.intellij.openapi.actionSystem.CommonDataKeys
 import org.apache.commons.io.FileUtils
+import java.io.File
 
 class PutSecretsAction : AnAction("Save AWS secrets files") {
 
@@ -24,6 +24,7 @@ class PutSecretsAction : AnAction("Save AWS secrets files") {
         val files: Array<VirtualFile>? = e.dataContext.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY)
 
         if (files != null) {
+            val events = mutableListOf<Event>()
             for (file in files) {
 
                 // get type of thing based on file name - blob, properties, or json?
@@ -34,7 +35,7 @@ class PutSecretsAction : AnAction("Save AWS secrets files") {
                 when (secretType) {
                     SecretType.PROPERTIES -> {
                         val secretAsString = readSecretsFromPropertiesFile(file)
-                        writeToAwsSecretsProperties(baseSecretName, awsRegion, secretAsString)
+                        writeToAwsSecretsProperties(baseSecretName, awsRegion, secretAsString, events)
                     }
                     SecretType.JSON -> {
                         TODO("Not implemented yet")
@@ -53,29 +54,31 @@ class PutSecretsAction : AnAction("Save AWS secrets files") {
     }
 
     private fun readSecretsFromPropertiesFile(file: VirtualFile): String {
-        val canonicalPath = file.canonicalPath
-        val lines = FileUtils.readLines(File(canonicalPath))// dgbtodo format nicely
-            .joinToString("\n")
+        val canonicalPath = file.canonicalPath !!
+        val lines = FileUtils.readLines(File(canonicalPath)) // dgbtodo format nicely
+                .joinToString("\n")
         return lines
     }
 
     private fun writeToAwsSecretsProperties(
-        secretName: String,
-        awsRegion: String,
-        secretAsString: String
-    ) {
+            secretName: String,
+            awsRegion: String,
+            secretAsString: String,
+            events: MutableList<Event>
+                                           ) {
         val client: AWSSecretsManager = AWSSecretsManagerClientBuilder.standard()
-            .withRegion(awsRegion)
-            .build()
+                .withRegion(awsRegion)
+                .build()
         val request: PutSecretValueRequest = PutSecretValueRequest()
-            .withSecretId(secretName)
-            .withSecretString(secretAsString)
+                .withSecretId(secretName)
+                .withSecretString(secretAsString)
         try {
             val result: PutSecretValueResult = client.putSecretValue(request)
             val versionId = result.versionId
             log.info("Wrote version $versionId of secret $secretName")
             val toString = result.toString()
             println("toString = $toString")
+            events.add(Event(true, "Put secret $secretName"))
         } catch (e: Exception) {
             log.info("Got an error!", e)
             if (e is ResourceNotFoundException) {
@@ -85,8 +88,10 @@ class PutSecretsAction : AnAction("Save AWS secrets files") {
                     .withSecretString(secretAsString)
                 try {
                     val secretResult = client.createSecret(createSecretRequest)
+                    events.add(Event(true, "Created new secret $secretName"))
                 } catch (e: Exception) {
                     log.error("Got an error creating the secret!", e)
+                    events.add(Event(false, "Failed to Put/Create secret $secretName"))
                 }
             }
         }

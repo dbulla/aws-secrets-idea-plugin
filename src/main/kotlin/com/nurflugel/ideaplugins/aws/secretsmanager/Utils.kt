@@ -5,7 +5,7 @@ object Utils {
 
 
     /**
-     * We get back all the values in one big string - need to break them up and parse them
+     * We get back all the values in one big string - need to break them up and parse them for properties maps
      */
     private fun parseSecretsString(
         secretName: String,
