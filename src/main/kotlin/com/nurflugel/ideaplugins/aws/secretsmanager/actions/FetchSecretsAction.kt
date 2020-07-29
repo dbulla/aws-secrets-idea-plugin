@@ -17,7 +17,7 @@ import java.io.File
 import javax.swing.JOptionPane
 
 /** This class does a batch fetch of all secrets starting with text supplied via a popup dialog */
-class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
+class FetchSecretsAction : AnAction("Fetch AWS secrets with search") {
 
     private val log = Logger.getInstance(FetchSecretsAction::class.java)
 
@@ -29,10 +29,9 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
                 val events = mutableListOf<Event>()
                 val virtualFile = files.first()
                 val fileSystem: VirtualFileSystem = virtualFile.fileSystem
-                val canonicalPath = virtualFile.canonicalPath !!
+                val canonicalPath = virtualFile.canonicalPath!!
                 val file = File(canonicalPath)
-                //todo get a popup to enter text
-                val searchPattern: String = JOptionPane.showInputDialog(null, "What's the search string?");
+                val searchPattern: String = JOptionPane.showInputDialog(null, "Find secrets starting with what?");
                 val secrets = getSecretIdsForWildcards(searchPattern, awsRegion)
                 secrets.forEach { fetchAndWriteSecret(it, awsRegion, file.absolutePath, fileSystem, events) }
                 showResults(events)
@@ -82,12 +81,12 @@ class FetchSecretsAction : AnAction("Fetch a bunch of secrets with wildcards") {
             allSecretNames: MutableList<String>,
             nextToken: String?,
             listSecretsRequest: ListSecretsRequest
-                                          ): String? {
+    ): String? {
         val request = when {
             nextToken != null -> {
                 listSecretsRequest.withNextToken(nextToken)
             }
-            else              -> listSecretsRequest
+            else -> listSecretsRequest
         }
         val result = client.listSecrets(request)
         val secretNames = result.secretList.map { it.name }

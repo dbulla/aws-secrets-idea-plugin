@@ -17,7 +17,7 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import javax.swing.JOptionPane
 
-class PutSecretsAction : AnAction("Save AWS secrets files") {
+class PutSecretsAction : AnAction("Create/Save AWS secrets from selected files") {
 
     private val log = Logger.getInstance(FetchSecretsAction::class.java)
 
