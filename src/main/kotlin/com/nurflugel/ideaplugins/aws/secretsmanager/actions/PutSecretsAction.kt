@@ -58,7 +58,7 @@ class PutSecretsAction : AnAction("Create/Save AWS secrets from selected files")
     }
 
     private fun readSecretsFromPropertiesFile(file: VirtualFile): String {
-        val canonicalPath = file.canonicalPath !!
+        val canonicalPath = file.canonicalPath!!
         val lines = FileUtils.readLines(File(canonicalPath)) // dgbtodo format nicely
                 .joinToString("\n")
         return lines
@@ -69,7 +69,7 @@ class PutSecretsAction : AnAction("Create/Save AWS secrets from selected files")
             awsRegion: String,
             secretAsString: String,
             events: MutableList<Event>
-                                           ) {
+    ) {
         val client: AWSSecretsManager = AWSSecretsManagerClientBuilder.standard()
                 .withRegion(awsRegion)
                 .build()
@@ -103,10 +103,12 @@ class PutSecretsAction : AnAction("Create/Save AWS secrets from selected files")
 
     companion object {
         fun showResults(events: MutableList<Event>) {
-            val comparator = compareBy<Event> { it.isSuccess }.thenBy { it.text }
-            val sortedEvents = events.sortedWith(comparator)
-            val eventsAsString = sortedEvents.joinToString(separator = "\n")
-            JOptionPane.showMessageDialog(null, "Results: \n" + eventsAsString)
+            if (events.isNotEmpty()) {
+                val comparator = compareBy<Event> { it.isSuccess }.thenBy { it.text }
+                val sortedEvents = events.sortedWith(comparator)
+                val eventsAsString = sortedEvents.joinToString(separator = "\n")
+                JOptionPane.showMessageDialog(null, "Results: \n$eventsAsString")
+            }
         }
     }
 }

@@ -56,13 +56,13 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
                 file: VirtualFile,
                 events: MutableList<Event>
                                ) {
-            return fetchAndWriteSecret(
-                    file.nameWithoutExtension,
-                    awsRegion,
-                    file.parent?.canonicalPath!!,
-                    file.fileSystem,
-                    events
-            )
+             fetchAndWriteSecret(
+                     file.nameWithoutExtension,
+                     awsRegion,
+                     file.parent?.canonicalPath!!,
+                     file.fileSystem,
+                     events
+             )
         }
 
         fun fetchAndWriteSecret(
@@ -94,8 +94,32 @@ class GetSecretsAction : AnAction("Get AWS secrets for selected files") {
                 log.info("Writing secret $secretName to ${theFile.absolutePath}")
                 // todo add option to format based on file type?
                 FileUtils.writeLines(theFile, lines)
+                addSecretToGitIgnore(theFile)
                 // refresh GUI
                 fileSystem.refresh(false)
+            }
+        }
+
+        /** If this is in Git, add /dirName/ to the .gitignore file in the folder if it doesn't already exist */
+        private fun addSecretToGitIgnore(file: File) {
+            //  if not a dir, get parent dir
+            val dir: File = when {
+                file.isDirectory -> {
+                    file
+                }
+                else -> {
+                    file.parentFile
+                }
+            }
+            val gitIgnoreFileName = ".gitignore"
+            val gitIgnoreFile = dir.listFiles()!!.firstOrNull { it.name == gitIgnoreFileName }
+                    ?: File(dir, gitIgnoreFileName)
+            val lines = if (!gitIgnoreFile.exists()) mutableListOf<String>() else gitIgnoreFile.readLines()
+            val alreadyHasEntry = lines.firstOrNull { it.contains(file.name) } != null
+            if (!alreadyHasEntry) {
+                val toMutableList = lines.toMutableList()
+                toMutableList.add(file.name)
+                FileUtils.writeLines(gitIgnoreFile, toMutableList)
             }
         }
 

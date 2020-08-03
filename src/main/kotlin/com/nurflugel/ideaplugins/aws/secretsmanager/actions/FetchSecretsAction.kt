@@ -33,7 +33,10 @@ class FetchSecretsAction : AnAction("Fetch AWS secrets with search") {
                 val file = File(canonicalPath)
                 val searchPattern: String = JOptionPane.showInputDialog(null, "Find secrets starting with what?");
                 val secrets = getSecretIdsForWildcards(searchPattern, awsRegion)
-                secrets.forEach { fetchAndWriteSecret(it, awsRegion, file.absolutePath, fileSystem, events) }
+                secrets.forEach {
+                    fetchAndWriteSecret(it, awsRegion, file.absolutePath, fileSystem, events)
+                }
+
                 showResults(events)
 
             } else {
