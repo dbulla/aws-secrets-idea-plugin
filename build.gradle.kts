@@ -1,11 +1,11 @@
 buildscript {
     repositories { mavenCentral() }
-    dependencies { classpath(kotlin("gradle-plugin", version = "1.3.72")) }
+    dependencies { classpath(kotlin("gradle-plugin", version = "1.4.0")) }
 }
 
 plugins {
     id("org.jetbrains.intellij") version "0.4.21"
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.14"
     id("com.github.ben-manes.versions") version "0.29.0"
 }
@@ -24,11 +24,11 @@ repositories {
     mavenCentral()
 }
 
-val awsVersion = "1.11.824"
+val awsVersion = "1.11.847"
 
 dependencies {
     implementation("com.amazonaws:aws-java-sdk-secretsmanager:$awsVersion")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.0")
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
     testImplementation("io.mockk:mockk:1.10.0")
